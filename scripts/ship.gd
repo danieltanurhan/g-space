@@ -8,15 +8,11 @@ extends CharacterBody3D
 @export var yaw_speed = 3.0
 @export var input_response = 12.0
 @export var mouse_sensitivity = 0.004
-
-# NEW: Shooting properties
-@export var laser_range = 1000.0
-@export var laser_damage = 25.0
-
-# Add these variables at the top with the others
-@export var laser_color = Color.RED
-@export var laser_width = 2.0
-@export var laser_duration = 0.1
+# Bullet system exports
+@export var BulletScene: PackedScene
+@export var fire_rate_hz: float = 10.0
+var _cooldown: float = 0.0
+@onready var gun_mount: Node3D = $GunMount
 
 var forward_speed = 0.0
 var pitch_input = 0.0
@@ -38,8 +34,7 @@ func _input(event):
 		pitch_input = clamp(pitch_input, -1.0, 1.0)
 	
 	# NEW: Shooting input
-	if event.is_action_pressed("shoot"):
-		shoot()
+	# shooting handled in _physics_process using cooldown
 	
 	if event.is_action_pressed("ui_cancel"):
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
@@ -76,53 +71,21 @@ func get_input(delta):
 	else:
 		yaw_input = lerp(yaw_input, keyboard_yaw, input_response * delta)
 
-# NEW: Shooting function
+# Bullet firing function
 func shoot():
-	var space = get_world_3d().direct_space_state
-	
-	# Cast a ray from the ship's position forward
-	var start_pos = global_position
-	var end_pos = global_position + transform.basis.z * laser_range
-	
-	var query = PhysicsRayQueryParameters3D.create(start_pos, end_pos)
-	var collision = space.intersect_ray(query)
-	
-	var laser_end = end_pos
-	if collision:
-		laser_end = collision.position
-		print("Hit: ", collision.collider.name)
-		# Optional: Update UI label if you added one
-		if has_node("CanvasLayer/Label"):
-			$CanvasLayer/Label.text = "Hit: " + collision.collider.name
-		
-		# Here you could add damage to the hit object
-		if collision.collider.has_method("take_damage"):
-			collision.collider.take_damage(laser_damage)
-	else:
-		print("Miss")
-		if has_node("CanvasLayer/Label"):
-			$CanvasLayer/Label.text = ""
-	
-	# Draw laser line (you'll need to implement this)
-	draw_laser_line(start_pos, laser_end)
-
-func draw_laser_line(start: Vector3, end: Vector3):
-	# This is a simple approach - you can make this fancier
-	var laser_line = Line3D.new()  # You'll need to create this or use a different approach
-	get_parent().add_child(laser_line)
-	laser_line.add_point(start)
-	laser_line.add_point(end)
-	laser_line.modulate = laser_color
-	
-	# Remove the line after a short duration
-	var timer = Timer.new()
-	add_child(timer)
-	timer.wait_time = laser_duration
-	timer.one_shot = true
-	timer.timeout.connect(func(): laser_line.queue_free(); timer.queue_free())
-	timer.start()
+	if BulletScene == null:
+		return
+	var bullet := BulletScene.instantiate() as Area3D
+	bullet.global_transform = gun_mount.global_transform
+	get_tree().current_scene.add_child(bullet)
 
 func _physics_process(delta):
+	# bullet firing cooldown
+	_cooldown = max(_cooldown - delta, 0.0)
+	if Input.is_action_pressed("shoot") and _cooldown == 0.0:
+		shoot()
+		_cooldown = 1.0 / fire_rate_hz
+
 	get_input(delta)
 	
 	# Apply rotations
