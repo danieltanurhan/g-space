@@ -7,6 +7,7 @@ var current_camera_index: int = 0
 
 func _ready():
 	_setup_skybox()
+	_setup_zero_gravity()
 	_spawn_player_ship()
 	_setup_cameras()
 
@@ -15,6 +16,22 @@ func _setup_skybox():
 	var skybox := Skybox.new()
 	skybox.setup(sky_texture)
 	add_child(skybox)
+
+func _setup_zero_gravity():
+	var area := Area3D.new()
+	var world_box := BoxShape3D.new()
+	world_box.size = Vector3(20000, 20000, 20000)
+	var shape := CollisionShape3D.new()
+	shape.shape = world_box
+	area.add_child(shape)
+	area.gravity = 0.0
+	add_child(area)
+	
+	# Basic directional light so meshes are visible
+	var dir_light := DirectionalLight3D.new()
+	dir_light.light_energy = 2.0
+	dir_light.rotation_degrees = Vector3(-30, 0, 0)
+	add_child(dir_light)
 
 func _setup_cameras():
 	var ship = $PlayerShip if has_node("PlayerShip") else null
