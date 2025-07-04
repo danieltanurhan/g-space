@@ -1,86 +1,43 @@
 extends CharacterBody3D
 
-const ACCELERATION = 20.0         # units/s²
-const MAX_SPEED = 60.0          # units/s
-const ROT_SPEED = 1.5           # radians/s
-const MOUSE_SENSITIVITY = 0.002
+@export var max_speed: float = 50.0
+@export var acceleration: float = 0.6
+@export var pitch_speed: float = 1.5
+@export var roll_speed: float = 1.9
+@export var yaw_speed: float = 1.25 # linked to roll
+@export var input_response: float = 8.0
 
-# Input actions expected:
-#   move_forward  (e.g. W)
-#   move_backward (S)
-#   move_left     (A)
-#   move_right    (D)
-#   move_up       (Space)
-#   move_down     (Ctrl)
-#   turn_left     (Q)
-#   turn_right    (E)
-#   pitch_up      (Up)
-#   pitch_down    (Down)
-#   roll_left     (Z)
-#   roll_right    (C)
+var forward_speed: float = 0.0
+var pitch_input: float = 0.0
+var roll_input: float = 0.0
+var yaw_input: float = 0.0
 
-func _ready():
-	# Disable built-in gravity so the ship behaves in zero-G.
-	# CharacterBody3D has no gravity_scale property; world handles zero-G via Area3D.
+func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _physics_process(delta: float) -> void:
-	_handle_translation(delta)
-	_handle_rotation(delta)
-	# Apply the computed velocity in a kinematic-friendly way.
-	move_and_slide()
+	_get_input(delta)
+	# Apply rotations
+	transform.basis = transform.basis.rotated(transform.basis.z, roll_input * roll_speed * delta)
+	transform.basis = transform.basis.rotated(transform.basis.x, pitch_input * pitch_speed * delta)
+	transform.basis = transform.basis.rotated(transform.basis.y, yaw_input * yaw_speed * delta)
+	transform.basis = transform.basis.orthonormalized()
 
-func _handle_translation(delta: float) -> void:
-	var thrust := Vector3.ZERO
+	# Forward movement
+	velocity = -transform.basis.z * forward_speed
+	move_and_collide(velocity * delta)
 
-	if Input.is_action_pressed("move_forward"):
-		thrust -= transform.basis.z
-	if Input.is_action_pressed("move_backward"):
-		thrust += transform.basis.z
-	if Input.is_action_pressed("move_left"):
-		thrust -= transform.basis.x
-	if Input.is_action_pressed("move_right"):
-		thrust += transform.basis.x
-	if Input.is_action_pressed("move_up"):
-		thrust += transform.basis.y
-	if Input.is_action_pressed("move_down"):
-		thrust -= transform.basis.y
+func _get_input(delta: float) -> void:
+	if Input.is_action_pressed("throttle_up"):
+		forward_speed = lerp(forward_speed, max_speed, acceleration * delta)
+	elif Input.is_action_pressed("throttle_down"):
+		forward_speed = lerp(forward_speed, 0.0, acceleration * delta)
 
-	if thrust != Vector3.ZERO:
-		thrust = thrust.normalized() * ACCELERATION * delta
-		velocity += thrust
-		velocity = velocity.limit_length(MAX_SPEED)
-
-	# Optional micro-damping so the ship slowly drifts to a stop if no input.
-	velocity *= 0.999
-
-func _handle_rotation(delta: float) -> void:
-	var yaw   := 0.0
-	var pitch := 0.0
-	var roll  := 0.0
-
-	if Input.is_action_pressed("turn_left"):
-		yaw += 1.0
-	if Input.is_action_pressed("turn_right"):
-		yaw -= 1.0
-	if Input.is_action_pressed("pitch_up"):
-		pitch += 1.0
-	if Input.is_action_pressed("pitch_down"):
-		pitch -= 1.0
-	if Input.is_action_pressed("roll_left"):
-		roll += 1.0
-	if Input.is_action_pressed("roll_right"):
-		roll -= 1.0
-
-	if yaw != 0.0:
-		rotate_y(yaw * ROT_SPEED * delta)
-	if pitch != 0.0:
-		rotate_object_local(Vector3.RIGHT, pitch * ROT_SPEED * delta)
-	if roll != 0.0:
-		rotate_object_local(Vector3.FORWARD, roll * ROT_SPEED * delta) 
+	pitch_input = lerp(pitch_input, Input.get_axis("pitch_down", "pitch_up"), input_response * delta)
+	roll_input = lerp(roll_input, Input.get_axis("roll_right", "roll_left"), input_response * delta)
+	# Link yaw to roll for atmospheric style handling; could be separate Input axis
+	yaw_input = roll_input
 
 func _unhandled_input(event):
-	if event is InputEventMouseMotion:
-		var rel: Vector2 = event.relative
-		rotate_y(-rel.x * MOUSE_SENSITIVITY)
-		rotate_object_local(Vector3.RIGHT, -rel.y * MOUSE_SENSITIVITY) 
+	if event.is_action_pressed("ui_cancel"):
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE) 

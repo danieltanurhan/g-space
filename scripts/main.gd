@@ -1,7 +1,7 @@
 extends Node3D
 
-@export var sky_texture: Texture2D = preload("res://textures/hdr/default_sky.hdr")
-@export var ship_scene: PackedScene
+@export var sky_texture: Texture2D = preload("res://textures/hdr/default_sky.jpg")
+@export var ship_scene: PackedScene = preload("res://scenes/player_ship.tscn")
 @export var camera_start_position: Vector3 = Vector3(0, 3, 8)
 
 func _ready():
