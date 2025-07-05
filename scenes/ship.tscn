@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=4 uid="uid://bojr85fakiiy8"]
+[gd_scene load_steps=8 format=4 uid="uid://bojr85fakiiy8"]
 
 [ext_resource type="Script" uid="uid://cqu27m8lwpavp" path="res://scripts/ship.gd" id="1_2gnfn"]
 [ext_resource type="Texture2D" uid="uid://b01ok0nid030d" path="res://models/ships/Executioner_Executioner_Orange.png" id="1_q631a"]
+[ext_resource type="PackedScene" uid="uid://cg7wcupa55ef0" path="res://scenes/bullet.tscn" id="3_4tobq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f0b3o"]
 resource_name = "Texture"
@@ -45,17 +46,9 @@ shadow_mesh = SubResource("ArrayMesh_yjkdu")
 [sub_resource type="SphereShape3D" id="SphereShape3D_q631a"]
 
 [node name="Ship" type="CharacterBody3D"]
+collision_mask = 3
 script = ExtResource("1_2gnfn")
-max_speed = null
-max_reverse_speed = null
-acceleration = null
-pitch_speed = null
-roll_speed = null
-yaw_speed = null
-input_response = null
-mouse_sensitivity = null
-laser_range = null
-laser_damage = null
+BulletScene = ExtResource("3_4tobq")
 
 [node name="Executioner" type="MeshInstance3D" parent="."]
 mesh = SubResource("ArrayMesh_0c7he")
@@ -74,3 +67,6 @@ far = 80000.0
 [node name="Label" type="Label" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 23.0
+
+[node name="GunMount" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)

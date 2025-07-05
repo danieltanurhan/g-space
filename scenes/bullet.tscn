@@ -1,0 +1,46 @@
+[gd_scene load_steps=8 format=3 uid="uid://cg7wcupa55ef0"]
+
+[ext_resource type="Script" uid="uid://c5qrstdo306lm" path="res://scripts/bullet.gd" id="1_mkf8s"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mkf8s"]
+height = 4.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mkf8s"]
+emission_enabled = true
+emission = Color(0, 0.756863, 0, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_y25gk"]
+material = SubResource("StandardMaterial3D_mkf8s")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 1.2
+
+[sub_resource type="PlaceholderMaterial" id="PlaceholderMaterial_mkf8s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y25gk"]
+next_pass = SubResource("PlaceholderMaterial_mkf8s")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_l5glv"]
+material = SubResource("StandardMaterial3D_y25gk")
+top_radius = 0.1
+bottom_radius = 0.1
+height = 1.2
+
+[node name="Bullet" type="Area3D"]
+collision_mask = 2
+script = ExtResource("1_mkf8s")
+lifetime = 5.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.408171, 0, 0, 0, -1.78417e-08, 0.408171, 0, -0.408171, -1.78417e-08, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_mkf8s")
+debug_color = Color(0.631214, 0.0192299, 0.577777, 0.42)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_y25gk")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+draw_pass_1 = SubResource("CylinderMesh_l5glv")
+
+[connection signal="body_entered" from="." to="." method="_on_Bullet_body_entered"]

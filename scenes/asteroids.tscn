@@ -1,6 +1,7 @@
-[gd_scene load_steps=17 format=4 uid="uid://81mvetsdhlro"]
+[gd_scene load_steps=25 format=4 uid="uid://81mvetsdhlro"]
 
 [ext_resource type="Texture2D" uid="uid://dpl76k4ib6hf8" path="res://models/asteroids/asteroids_-_low_poly_0.png" id="1_hms1a"]
+[ext_resource type="Script" uid="uid://4trtyyp85577" path="res://scripts/asteroids.gd" id="2_46dfx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v6exn"]
 resource_name = "Asteroid"
@@ -42,6 +43,8 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_pg6jt")
 
+[sub_resource type="SphereMesh" id="SphereMesh_46dfx"]
+
 [sub_resource type="SphereShape3D" id="SphereShape3D_46dfx"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_5o77v"]
@@ -77,6 +80,11 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_5o77v")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_72i4m"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_405t2"]
+material = SubResource("StandardMaterial3D_72i4m")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_72i4m"]
 
@@ -114,6 +122,8 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_hhefa")
 
+[sub_resource type="SphereMesh" id="SphereMesh_72i4m"]
+
 [sub_resource type="ArrayMesh" id="ArrayMesh_mjlsm"]
 _surfaces = [{
 "aabb": AABB(-0.380229, -0.387121, -0.397598, 0.785064, 0.790601, 0.796148),
@@ -147,6 +157,8 @@ _surfaces = [{
 }]
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_mjlsm")
+
+[sub_resource type="SphereMesh" id="SphereMesh_tnxac"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_1yc6d"]
 _surfaces = [{
@@ -182,6 +194,8 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_1yc6d")
 
+[sub_resource type="SphereMesh" id="SphereMesh_u1tuw"]
+
 [sub_resource type="ArrayMesh" id="ArrayMesh_txujj"]
 _surfaces = [{
 "aabb": AABB(-0.442446, -0.452099, -0.413993, 0.848668, 0.902767, 0.891706),
@@ -216,6 +230,8 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_txujj")
 
+[sub_resource type="SphereMesh" id="SphereMesh_buvfj"]
+
 [node name="asteroids" type="Node3D"]
 
 [node name="purple_asteroid" type="MeshInstance3D" parent="."]
@@ -223,6 +239,13 @@ mesh = SubResource("ArrayMesh_jkb5w")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="purple_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+split_count = 2
+split_force = 50.0
+medium_mesh = SubResource("SphereMesh_46dfx")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="purple_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_46dfx")
@@ -233,6 +256,14 @@ mesh = SubResource("ArrayMesh_lil87")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="green_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+health = 2
+split_count = 4
+split_force = 40.0
+medium_mesh = SubResource("SphereMesh_405t2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="green_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_72i4m")
@@ -243,6 +274,14 @@ mesh = SubResource("ArrayMesh_pdymo")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="brown_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+health = 3
+split_count = 5
+split_force = 50.0
+medium_mesh = SubResource("SphereMesh_72i4m")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="brown_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_72i4m")
@@ -253,6 +292,12 @@ mesh = SubResource("ArrayMesh_u2wks")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="moon_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+split_force = 50.0
+medium_mesh = SubResource("SphereMesh_tnxac")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="moon_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_72i4m")
@@ -263,6 +308,12 @@ mesh = SubResource("ArrayMesh_pltdm")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="sea_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+split_force = 50.0
+medium_mesh = SubResource("SphereMesh_u1tuw")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="sea_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_72i4m")
@@ -273,6 +324,12 @@ mesh = SubResource("ArrayMesh_68wcx")
 skeleton = NodePath("")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="purplegreen_asteroid"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("2_46dfx")
+asteroid_size = 1
+split_force = 50.0
+medium_mesh = SubResource("SphereMesh_buvfj")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="purplegreen_asteroid/StaticBody3D"]
 shape = SubResource("SphereShape3D_72i4m")
